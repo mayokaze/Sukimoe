@@ -51,9 +51,9 @@ class Scheme
   end  
   
    def initialize
-    integer = /0|[1-9]\d*/.r {|n| ValNode[n.to_i]}
+    integer = /\A0|[1-9]\d*/.r {|n| ValNode[n.to_i]}
     op = one_of_('+-*/')
-    id = /[^\s\(\)\[\]]+/.r {|n| ListNode[*n] }
+    id = /\A[^\s\(\)\[\]]+/.r {|n| ListNode[*n] }
     value    = integer | lazy{list}|id
     calc    = seq_('(',op, value, value,')'){|n| ListNode[n[1],n[2],n[3]]} 
     lambda =  seq_('(',word('lambda'), id,lazy{list},')'){|n| ListNode[n[1],n[2],n[3]] }
@@ -61,7 +61,7 @@ class Scheme
     display = seq_('(',word('print'),lazy{list},')'){|n| ListNode[n[1],n[2]] }
     define =  seq_('(',word('define'),id,lazy{list},')') {|n| ListNode[n[1],n[2],n[3]] }
     list = calc|display|invoke|lambda|define|integer|id
-    program = /\s*/.r.join(list).odd {|n| ListNode[*n] }
+    program = /\A\s*/.r.join(list).odd {|n| ListNode[*n] }
     @parser = program.eof
  end
   
